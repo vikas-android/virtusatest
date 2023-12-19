@@ -2,6 +2,7 @@ package com.example.virtusatest
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -9,35 +10,44 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.virtusatest.adapter.RecyclerAdapter
 import com.example.virtusatest.databinding.ActivityMainBinding
 import com.example.virtusatest.model.ModelItem
-import com.example.virtusatest.network.ApiService
-import com.example.virtusatest.network.RetrofitHelper
-import com.example.virtusatest.repository.Repository
+import com.example.virtusatest.repository.NetworkResult
 import com.example.virtusatest.viewModel.MainViewModel
-import com.example.virtusatest.viewModel.MainViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     lateinit var mainViewModel: MainViewModel
     lateinit var binding: ActivityMainBinding
 
-    private var myAdapter: RecyclerAdapter? = null
-    private var arrayList: ArrayList<ModelItem> = ArrayList<ModelItem>()
+    @Inject
+    lateinit var myAdapter: RecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= DataBindingUtil.setContentView(this,R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val apiService = RetrofitHelper.getInstance().create(ApiService::class.java)
-        val repository = Repository(apiService)
+
         mainViewModel =
-            ViewModelProvider(this, MainViewModelFactory(repository)).get(MainViewModel::class.java)
+            ViewModelProvider(this).get(MainViewModel::class.java)
 
-        myAdapter = RecyclerAdapter(this, arrayList!!)
 
         mainViewModel.catData.observe(this) {
-            it.forEach { e ->
-                arrayList.add(e)
+            when (it) {
+                is NetworkResult.Success -> {
+                    it.data?.let { data ->
+                        myAdapter.arrList = data
+                    }
+                }
+                is NetworkResult.Error -> {
+                    it.errorMessage?.let { error ->
+                        Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is NetworkResult.Loading -> {}
             }
+
             binding.recyclerView.adapter!!.notifyDataSetChanged()
         }
         binding.recyclerView.adapter = myAdapter

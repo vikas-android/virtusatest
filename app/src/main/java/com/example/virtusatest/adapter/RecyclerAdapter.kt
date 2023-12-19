@@ -11,13 +11,19 @@ import com.example.virtusatest.R
 import com.example.virtusatest.model.ModelItem
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import javax.inject.Inject
 
 
-class RecyclerAdapter (var context: Context, var arrList:ArrayList<ModelItem>):
+class RecyclerAdapter @Inject constructor():
     RecyclerView.Adapter<RecyclerAdapter.MyViewHolder>() {
 
+    var arrList:List<ModelItem> = emptyList()
+    set(value) {
+        field=value
+        notifyDataSetChanged()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val view= LayoutInflater.from(context).inflate(R.layout.layout_item,parent,false)
+        val view= LayoutInflater.from(parent.context).inflate(R.layout.layout_item,parent,false)
         return MyViewHolder(view)
     }
 
@@ -26,6 +32,7 @@ class RecyclerAdapter (var context: Context, var arrList:ArrayList<ModelItem>):
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
         Picasso.get()
             .load(arrList[position].url)
             .fit()

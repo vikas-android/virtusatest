@@ -5,7 +5,7 @@ import androidx.databinding.BindingAdapter
 import com.squareup.picasso.Picasso
 
 class LoadImage {
-    @BindingAdapter("bind:imageUrl")
+    @BindingAdapter("imageUrl")
     fun loadImage(view: ImageView, imageUrl: String?) {
         Picasso.get()
             .load(imageUrl)

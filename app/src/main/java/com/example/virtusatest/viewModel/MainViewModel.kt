@@ -7,13 +7,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.virtusatest.model.ModelItem
+import com.example.virtusatest.repository.NetworkResult
 import com.example.virtusatest.repository.Repository
 import com.squareup.picasso.Picasso
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class MainViewModel(private val repository: Repository):ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(private val repository: Repository):ViewModel() {
 
     init {
         viewModelScope.launch(Dispatchers.IO){
@@ -21,7 +24,7 @@ class MainViewModel(private val repository: Repository):ViewModel() {
         }
     }
 
-    val catData:LiveData<ArrayList<ModelItem>>
+    val catData:LiveData<NetworkResult<ArrayList<ModelItem>>>
     get() = repository.cat
 
 
